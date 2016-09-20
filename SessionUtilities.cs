@@ -49,10 +49,18 @@ public static class SessionUtils
         long totalSessionBytes = 0;
         BinaryFormatter b = new BinaryFormatter();
         MemoryStream m;
-        foreach (var obj in Session.Items)
+        foreach (var key in Session.Items.Keys)
         {
             m = new MemoryStream();
-            b.Serialize(m, obj);
+            if (key != null)
+            {
+                b.Serialize(m, key);
+                var value = Session.Items[key.ToString()];
+                if (value != null)
+                {
+                    b.Serialize(m, value);
+                }
+            }
             totalSessionBytes += m.Length;
         }
         return totalSessionBytes;

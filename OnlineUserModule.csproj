@@ -30,26 +30,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Artinsoft.Matchine.Runtime, Version=1.1.3150.194, Culture=neutral, PublicKeyToken=511579b42eb4ac72, processorArchitecture=MSIL">
-      <HintPath>c:\users\mrojas\Documents\Visual Studio 2015\Projects\WebMapOnlineUsersModule\packages\Artinsoft.Matchine.Runtime.1.1.3150.194\lib\net20\Artinsoft.Matchine.Runtime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Module.cs" />
     <Compile Include="OnlineUserInfo.cs" />
+    <Compile Include="OnlineUsersTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>OnlineUsersTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Include="OnlineUsersHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionUtilities.cs" />
@@ -59,6 +56,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="OnlineUsersTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>OnlineUsersTemplate.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
