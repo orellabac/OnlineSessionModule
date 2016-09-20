@@ -1,6 +1,0 @@
-S:\allscripts\stabilization14\OnlineUserModule\obj\Debug\OnlineUserModule.csprojResolveAssemblyReference.cache
-S:\allscripts\stabilization14\OnlineUserModule\bin\Debug\OnlineUserModule.dll
-S:\allscripts\stabilization14\OnlineUserModule\bin\Debug\OnlineUserModule.pdb
-S:\allscripts\stabilization14\OnlineUserModule\obj\Debug\OnlineUserModule.dll
-S:\allscripts\stabilization14\OnlineUserModule\obj\Debug\OnlineUserModule.pdb
-S:\allscripts\stabilization14\OnlineUserModule\bin\Debug\Artinsoft.Matchine.Runtime.dll
