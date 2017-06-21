@@ -15,6 +15,7 @@
     <tags>WebMap Module ASP NET</tags>
   </metadata>
   <files>
-    <file src="bin\Debug\OnlineUserModule.dll" target="lib\OnlineUserModule.dll"/>
+    <file src="OnlineUserModule.dll" target="lib\OnlineUserModule.dll"/>
+    <file src="web.config.transform" target="content\web.config.transform"/>
   </files>
 </package>

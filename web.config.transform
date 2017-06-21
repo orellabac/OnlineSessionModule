@@ -1,0 +1,14 @@
+﻿<configuration>
+    <system.webServer>
+        <modules>
+            <remove name="OnlineUserModuleHttpModule_Net40" />        
+			<add name="OnlineUserModuleHttpModule_Net40" type="Server.OnlineUsersModule" />
+        </modules>
+		<handlers>
+			<add verb="*" 
+			path="sessioninfo.axd/sessionsinfo" 
+			name="SessionInfo" 
+			type="Server.SessionsInfoHandler, OnlineUserModule" />
+		</handlers>
+    </system.webServer>
+</configuration>

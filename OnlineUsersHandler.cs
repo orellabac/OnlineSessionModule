@@ -1,6 +1,6 @@
 ﻿using System.Web;
 
-namespace UpgradeHelpers.WebMap.Server
+namespace Server
 {
     /// <summary>
     /// Summary description for NewHandler.
@@ -39,10 +39,10 @@ namespace UpgradeHelpers.WebMap.Server
                         }
                     }
                 }
-                var template = new OnlineUserModule.CurrentSessions();
-                template.OnlineUsers = currentUsers;
+                //var template = new OnlineUserModule.CurrentSessions();
+                //template.OnlineUsers = currentUsers;
                 objResponse.AppendHeader("Cache-Control", "no-cache");
-                objResponse.Write(template.TransformText());
+               // objResponse.Write(template.TransformText());
             }
             else if (context.Request.Url.LocalPath.EndsWith("pageinfo.info"))
             {
@@ -51,7 +51,7 @@ namespace UpgradeHelpers.WebMap.Server
                 var sessionpages = SessionUtils.GetSessionInfoPagesCount(context.ApplicationInstance, sessionID, pageSize);
                 var data = SessionUtils.GetSessionInfo(context.ApplicationInstance, sessionID, 1, pageSize);
 
-                var template = new OnlineUserModule.Pager();
+                /*var template = new OnlineUserModule.Pager();
                 template.PagesCount = sessionpages;
                 template.PageSize = 20;
                 template.SessionID = sessionID;
@@ -59,6 +59,7 @@ namespace UpgradeHelpers.WebMap.Server
                 template.showButtons = true;
                 objResponse.AppendHeader("Cache-Control", "no-cache");
                 objResponse.Write(template.TransformText());
+                */
             }
             else if (context.Request.Url.LocalPath.EndsWith("pageinfonext.info"))
             {
@@ -70,14 +71,14 @@ namespace UpgradeHelpers.WebMap.Server
                 var sessionpages = SessionUtils.GetSessionInfoPagesCount(context.ApplicationInstance, sessionID, pageSize);
                 var data = SessionUtils.GetSessionInfo(context.ApplicationInstance, sessionID, pageIndex, pageSize);
 
-                var template = new OnlineUserModule.Pager();
+               /* var template = new OnlineUserModule.Pager();
                 template.showButtons = false;
                 template.PagesCount = sessionpages;
                 template.PageSize = pageSize;
                 template.SessionID = sessionID;
                 template.Data = data;
                 objResponse.AppendHeader("Cache-Control", "no-cache");
-                objResponse.Write(template.TransformText());
+                objResponse.Write(template.TransformText());*/
             }
             else if (context.Request.Url.LocalPath.EndsWith("dump.info"))
             {
@@ -87,8 +88,8 @@ namespace UpgradeHelpers.WebMap.Server
             else
             {
 
-                var template = new OnlineUserModule.DashboardMainTemplate();
-                objResponse.Write(template.TransformText());
+               /* var template = new OnlineUserModule.DashboardMainTemplate();
+                objResponse.Write(template.TransformText());*/
             }
         }
         public bool IsReusable

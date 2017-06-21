@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using System.Web.SessionState;
 
-namespace UpgradeHelpers.WebMap.Server
+namespace Server
 {
     public class OnlineUsersModule : IHttpModule
     {
