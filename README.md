@@ -1,6 +1,8 @@
 Online Users Module Version 2.0
 ================================
 
+[![Build status](https://ci.appveyor.com/api/projects/status/foi3wv36o8gx8hq7?svg=true)](https://ci.appveyor.com/project/orellabac/onlinesessionmodule)
+
 This is a simple module that you can add to your website to monitor current users and session sizes
 
 I created this module mostly to deal with ASP.NET MVC Applications specially applications migrated with Mobilize.NET WebMap.
