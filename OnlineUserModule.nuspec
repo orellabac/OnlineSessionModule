@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>WebMapOnlineSessionsModule</id>
-    <version>1.2</version>
+    <version>2.0</version>
     <title>WebMap Online Sessions Module</title>
     <authors>Mauricio Rojas</authors>
     <owners>Mauricio rojas</owners>
@@ -11,7 +11,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A sample module and to be able to list the current sessions and the size of those sessions</description>
     <releaseNotes>Improving report output. Fix serialization issue</releaseNotes>
-    <copyright>Copyright 2016</copyright>
     <tags>WebMap Module ASP NET</tags>
   </metadata>
   <files>

@@ -9,7 +9,24 @@ using System.Web;
 using System.Web.Hosting;
 using System.Web.SessionState;
 using System.Linq;
+using System.Text.RegularExpressions;
 
+public class SessionItemPair
+{
+    public string key { get; set; }
+    public object value { get; set; }
+}
+public class SessionInfoPage
+{
+    public string status { get; set; }
+    public int PageSize { get; set; }
+    public int TotalPages { get; set; }
+    public int PageIndex { get; set; }
+    public int StartIndex { get;  set; }
+    public int EndIndex { get;set; }
+
+    public List<SessionItemPair> data = new List<SessionItemPair>();
+}
 public static class SessionUtils
 {
 
@@ -175,44 +192,223 @@ public static class SessionUtils
         }
         return "nodata";
     }
-
-    public static int GetSessionInfoPagesCount(HttpApplication httpApplication, string sessionId, int pageSize)
+    public class SessionSize
     {
-        var data = GetSessionById(httpApplication, sessionId);
-        var dataTable = data.Items["WM@"] as Hashtable;
-        if (dataTable!=null)
+        public bool Invalid;
+        public int TotalItems;
+        public int TotalPages;
+    }
+    public static SessionSize GetSessionInfoPagesCount(HttpApplication httpApplication, string sessionId, int pageSize)
+    {
+        var res = new SessionSize() { Invalid = true, TotalPages = -1, TotalItems = -1 };
+        if (string.IsNullOrWhiteSpace(sessionId))
         {
-            return dataTable.Count / pageSize;
+            return res;
         }
-        return -1;
+     
+
+        var data = GetSessionById(httpApplication, sessionId);
+        if (data != null)
+        {
+            res.Invalid = false;
+            
+            if (data.Items["WM@"] != null) //Is it a webmap session
+            {
+                var dataTable = data.Items["WM@"] as IDictionary<string, object>;
+                if (dataTable != null)
+                {
+                    res.TotalItems = dataTable.Count;
+                    res.TotalPages = (dataTable.Count / pageSize) + (dataTable.Count % pageSize > 0 ? pageSize : 1);
+                }
+                else
+                {
+                    res.Invalid = true; 
+                }
+            }
+            else
+            {
+                res.TotalItems = data.Items.Count;
+                res.TotalPages = data.Items.Count / pageSize;
+            }
+        }
+        return res;
     }
 
-    public static System.Collections.Generic.List<string[]> GetSessionInfo(HttpApplication httpApplication, string sessionId, int pageIndex, int pageSize)
+    public static object TryGetItemByID(HttpApplication httpApplication, string sessionId, string itemID,bool returnRaw, ref bool statusOK)
     {
-        var result = new System.Collections.Generic.List<string[]>();
+        statusOK = false;
         var data = GetSessionById(httpApplication, sessionId);
-        var dataTable = data.Items["WM@"] as Hashtable;
-        var startIndex = pageSize * pageIndex;
-        var endIndex = pageSize * (pageIndex + 1);
-        var keys = dataTable.Keys;
-        var enumerator = keys.GetEnumerator();
-        int index = 0;
-        bool lastMoveNext = false;
-        while( (lastMoveNext=enumerator.MoveNext()))
+        if (data == null)
         {
-            index++;
-            if (index >= startIndex) break;
+            return null;
         }
-        if (lastMoveNext)
+        IEnumerable keys = null;
+        Func<string, object> getter = null;
+
+        //Trying to get information
+        if (data.Items["WM@"] != null)
         {
-            do
+            IDictionary<string, object> dataTable;
+            dataTable = (IDictionary<string, object>)((SessionStateStoreData)data).Items["WM@"];
+            keys = dataTable.Keys;
+            getter = (string x) =>
             {
-                var key = "" + enumerator.Current;
-                result.Add(new string[] { key, "" + dataTable[key] });
-                index++;
-                if (index >= endIndex) break;
-            } while (enumerator.MoveNext());
+                object value = null;
+                dataTable.TryGetValue(x, out value);
+                if (returnRaw)
+                    return value;
+                else 
+                    return "" + value;
+            };
         }
+        else
+        {
+            keys = data.Items.Keys;
+            getter = (string x) =>
+            {
+                if (returnRaw)
+                    return data.Items[x];
+                else
+                    return "" + data.Items[x];
+            };
+
+        }
+        if (keys != null && getter != null)
+        {
+            statusOK = true;
+            return getter(itemID);
+        }
+        else
+        {
+            //Something is wrong
+            statusOK = false;
+            return null;
+        }
+    }
+
+    public static SessionInfoPage GetSessionInfoByPattern(HttpApplication httpApplication, string sessionId, int lastIndex,int pageSize,Regex regex)
+    {
+        var result = new SessionInfoPage() { PageSize = pageSize, StartIndex = lastIndex,PageIndex=-1, status = "ok" };
+
+        var data = GetSessionById(httpApplication, sessionId);
+        if (data == null)
+        {
+            result.status = "error";
+            return result;
+        }
+        IEnumerable keys = null;
+        Func<string, string> getter = null;
+
+        //Trying to get information
+        if (data.Items["WM@"] != null)
+        {
+            IDictionary<string, object> dataTable;
+            dataTable = (IDictionary<string, object>)((SessionStateStoreData)data).Items["WM@"];
+            keys = dataTable.Keys;
+            getter = (string x) => "" + dataTable[x];
+        }
+        else
+        {
+            keys = data.Items.Keys;
+            getter = (string x) => "" + data.Items[x];
+        }
+        if (keys != null && getter != null)
+        {
+            result.StartIndex = lastIndex;
+            //result.EndIndex = pageSize * ((pageIndex - 1) + 1);
+
+            var enumerator = keys.GetEnumerator();
+            int index = 0;
+            bool lastMoveNext = false;
+            while ((lastMoveNext = enumerator.MoveNext()))
+            {
+                index++;
+                if (index >= result.StartIndex) break;
+            }
+            if (lastMoveNext)
+            {
+                do
+                {
+                    var key = "" + enumerator.Current;
+                    if (regex.IsMatch(key))
+                    {
+                        result.data.Add(new SessionItemPair() { key = key, value = getter(key) });
+                    }
+                    index++;
+                    if (result.data.Count >= result.PageSize)
+                    {
+                        result.EndIndex = index;
+                        break;
+                    }
+                } while (enumerator.MoveNext());
+            }
+
+        }
+        else
+        {
+            //Something is wrong
+            result.status = "error";
+        }
+        return result;
+    }
+
+    public static SessionInfoPage GetSessionInfo(HttpApplication httpApplication, string sessionId, int pageIndex, int pageSize)
+    {
+        var result = new SessionInfoPage() { PageSize = pageSize, PageIndex = pageIndex, status="ok" };
+       
+        var data = GetSessionById(httpApplication, sessionId);
+        if (data==null)
+        {
+            result.status = "error";
+            return result;
+        }
+        IEnumerable keys=null;
+        Func<string, string> getter = null;
+
+        //Trying to get information
+        if (data.Items["WM@"]!=null)
+        {
+            IDictionary<string,object> dataTable;
+            dataTable = (IDictionary<string, object>) ((SessionStateStoreData)data).Items["WM@"];
+            keys = dataTable.Keys;
+            getter = (string x) => "" + dataTable[x];
+        }
+        else
+        {
+            keys = data.Items.Keys;
+            getter = (string x) => "" + data.Items[x];
+        }
+        if (keys!=null && getter!=null)
+        {
+            result.StartIndex = pageSize * (pageIndex - 1);
+            result.EndIndex =   pageSize * ((pageIndex - 1) + 1);
+
+            var enumerator = keys.GetEnumerator();
+            int index = 0;
+            bool lastMoveNext = false;
+            while ((lastMoveNext = enumerator.MoveNext()))
+            {
+                index++;
+                if (index >= result.StartIndex) break;
+            }
+            if (lastMoveNext)
+            {
+                do
+                {
+                    var key = "" + enumerator.Current;
+                    result.data.Add(new SessionItemPair() { key = key, value = getter(key) });
+                    index++;
+                    if (index >= result.EndIndex) break;
+                } while (enumerator.MoveNext());
+            }
+
+        }
+        else
+        {
+            //Something is wrong
+            result.status = "error";
+        }
+        
         return result;
     }
 

@@ -1,0 +1,31 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<div class="container">
+   <button class="btn" onclick="detailsByPattern('<#=Model.SessionID#>',<#=Model.StartIndex#>, @(Model.EndIndex),'<#=Model.Pattern#>'">Previous Page</button>
+   <button class="btn" onclick="detailsByPattern('<#=Model.SessionID#>',<#=Model.StartIndex#>, @(Model.EndIndex),'<#=Model.Pattern#>')">Next Page</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Element Key</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            <#foreach (SessionItemPair item in Model.data)
+            {#>
+                <tr>
+                    <td><#=item.key#></td>
+                    <td><#=""+item.value#></td>
+                </tr>
+            <#}#>
+        </tbody>
+      
+    </table>
+</div>
+
+<#+
+public dynamic Model {get;set;}
+#>

@@ -1,0 +1,252 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<!doctype html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-1.7.1.min.js" integrity="sha256-iBcUE/x23aI6syuqF7EeT/+JFBxjPs5zeFJEXxumwb0=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jq-console/2.7.7/jqconsole.min.js"></script>
+ <style>    /* The console container element */
+    #console {
+      width: 800px;
+      height: 500px;
+      background-color:black;
+    }
+    /* The inner console element. */
+    .jqconsole {
+        padding: 10px;
+    }
+    /* The cursor. */
+    .jqconsole-cursor {
+        background-color: gray;
+    }
+    /* The cursor color when the console looses focus. */
+    .jqconsole-blurred .jqconsole-cursor {
+        background-color: #666;
+    }
+    /* The current prompt text color */
+    .jqconsole-prompt {
+        color: #0d0;
+    }
+    /* The command history */
+    .jqconsole-old-prompt {
+        color: #0b0;
+        font-weight: normal;
+    }
+    /* The text color when in input mode. */
+    .jqconsole-input {
+        color: #dd0;
+    } 
+    /* Previously entered input. */
+    .jqconsole-old-input {
+        color: #bb0;
+        font-weight: normal;
+    }
+    /* The text color of the output. */
+    .jqconsole-output {
+        color: white;
+    }
+
+	/* The text color of the output. */
+    .jqconsole-output-error {
+        color: red;
+    }
+
+  </style>
+
+</head>
+<body>
+     <div id="console"></div>
+    <div id="results"></div>
+     <script>
+	    var sessionID = '<#=Model.SessionID#>';
+        var term = $('#console').jqconsole('Hi\n', '>>>');
+		window.term = term;
+        term.Write('Welcome to console for session ' + sessionID + '\r\n','jqconsole-output');
+        term.startPrompt = function () {
+          // Start the prompt with history enabled.
+          term.Prompt(true, function (input) {
+            // Output input with the class jqconsole-output.
+			term.processCommand(input);
+          });
+        };
+        term.startPrompt();
+    </script>
+
+    <script>
+        term.commandProcessors = [];
+        term.lastCommand = '';
+        term.currentCommand = '';
+        term.commandCallback = function(response) {
+            term.Write(response,'jqconsole-output');
+            term.startPrompt();
+        };
+        term.processCommand = function(command) {
+          term.pendingPromise = $.Deferred();
+          term.pendingPromise.done(
+            function(resolvedResponse)
+            {
+              term.commandCallback(resolvedResponse);
+            });
+          term.executeCommand(command,term.pendingPromise);
+        };
+
+        term.executeCommand = function (command, pendingPromise) 
+		{
+			var handled = false;
+			for(var i=0;!handled && i<term.commandProcessors.length;i++) 
+			{
+				var current = term.commandProcessors[i];
+				if (current.handleCommand(command))
+				{
+				    try 
+					{
+						current.processCommand(command);
+						pendingPromise.resolve("OK\r\n");
+					}
+					catch(Error) 
+					{
+						pendingPromise.resolve("Error\r\n");
+					}
+					handled = true;
+				}
+			}
+			if (!handled) 
+			{
+				pendingPromise.resolve("Command not recognized\r\n");
+			}
+        };
+    </script>
+
+
+    <!-- command processing -->
+    <script>
+        function CommandDumpBinItem() {
+            this.commandMatcher = /dump\s+bin\s+item\s+(.*)/g;
+            this.handleCommand = function (command) {
+				this.commandMatcher.lastIndex = -1;
+                var match = this.commandMatcher.exec(command);
+                if (match && match[0]) //Check if matched
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            this.processCommand = function (command) {
+				this.commandMatcher.lastIndex = -1;
+                var match = this.commandMatcher.exec(command);
+                var ID = match[1];
+                $.ajax({url:'./commandDumpBinItem',data:JSON.stringify({sessionID:sessionID,ID:ID}),type:'POST'})
+                    .done(function (response) {
+                        $("#results").html('<pre>' + response + '</pre>');
+                    });            
+				}
+        }
+        term.commandProcessors.push(new CommandDumpBinItem());
+    </script>
+
+	  <script>
+        function CommandDumpItem() {
+            this.commandMatcher = /dump\s+item\s+(.*)/g;
+            this.handleCommand = function (command) {
+				this.commandMatcher.lastIndex = -1;
+                var match = this.commandMatcher.exec(command);
+                if (match && match[0]) //Check if matched
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            this.processCommand = function (command) {
+				this.commandMatcher.lastIndex = -1;
+                var match = this.commandMatcher.exec(command);
+                var ID = match[1];
+                $.ajax({url:'./commandDumpItem',data:JSON.stringify({sessionID:sessionID,ID:ID}),type:'POST'})
+                    .done(function (response) {
+                        $("#results").html(response);
+                    });
+            }
+        }
+        term.commandProcessors.push(new CommandDumpItem());
+    </script>
+
+	  <script>
+        function CommandDumpByPattern() {
+            this.commandMatcher = /dump\s+pattern\s+(.*)/g;
+            this.handleCommand = function (command) {
+				this.commandMatcher.lastIndex = -1;
+                var match = this.commandMatcher.exec(command);
+                if (match && match[0]) //Check if matched
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            this.processCommand = function (command) {
+                this.commandMatcher.lastIndex = -1;
+				var match = this.commandMatcher.exec(command);
+                var pattern = match[1];
+				var page = 1;
+				var numItems = 50;
+				var index = 0;
+				var regex = match[1];
+				$.ajax({url:'./commandDumpByPattern',data:JSON.stringify(
+					{sessionID:sessionID,
+					page:page,
+					numItems:numItems,
+					index:index,regex:regex})
+					,type:'POST'})
+                    .done(function (response) {
+                        $("#results").html(response);
+                    });            
+            }
+        }
+        term.commandProcessors.push(new CommandDumpByPattern());
+    </script>
+
+		  <script>
+        function CommandDumpSession() {
+            this.commandMatcher = /dump\s+session/g;
+            this.handleCommand = function (command) {
+				this.commandMatcher.lastIndex = -1;
+                var match = this.commandMatcher.exec(command);
+                if (match && match[0]) //Check if matched
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            this.processCommand = function (command) {
+				var url = './commandDumpSession?sessionID=' + sessionID;
+				$('<a/>', {
+					id: 'downloadFile',
+					href: url,
+					style: 'display:hidden;',
+					download: ''
+				}).appendTo('body');
+
+				$("#downloadFile")[0].click();
+				$("#downloadFile").remove();
+            }
+        }
+        term.commandProcessors.push(new CommandDumpSession());
+    </script>
+</body>
+</html>
+<#+
+ public dynamic Model {get;set;}
+#>

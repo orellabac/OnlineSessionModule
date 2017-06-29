@@ -1,0 +1,92 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>List of sessions for current application</title>
+    <script src="https://use.fontawesome.com/720940a13c.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script>
+        function openConsole(sessionID) {
+            window.open('./console|' + sessionID, '_blank').focus();
+        }
+
+        function refreshSession(sessionID) {
+            var id = "#size" + sessionID; 
+            $.get("./size?sessionID=" + sessionID).done(function (size) {
+                $(id).html(size);
+            });
+        }
+        function loadDetails(sessionID,page,numItems) {
+            
+            $.get("./details?sessionID=" + sessionID + "&page=" + page + "&numItems=" + numItems).done(function (details) {
+                $("#results").html(details);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>List of current sessions</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>SessionId</th>
+                    <th>IPAddress</th>
+                    <th>Referrer</th>
+                    <th>Started</th>
+                    <th>Size</th>
+                </tr>
+            </thead>
+            <tbody>
+<#foreach (OnlineUserInfo user in Model.users)
+{#>
+                <tr>
+                    <td>
+                        <!--Refresh --><a class="btn" title="opens a console for session" href="#" onclick="openConsole('<#=user.SessionId#>')"><i data-toggle="opens a console for session" class="fa fa-terminal"></i></a>
+                        <!--Refresh --><a class="btn" title="queries current session size"  href="#" onclick="refreshSession('<#=user.SessionId#>')"><i class="fa fa-refresh"></i></a>
+                        <!--ShowList--><a class="btn" title="display the current session contents" href="#" onclick="loadDetails('<#=user.SessionId#>',1,50)"><i class="fa fa-list"></i></a>
+                    </td>
+                    <td><#=user.SessionId#></td>
+                    <td><#=user.IPAddress#></td>
+                    <td><#=user.UrlReferrer#></td>  
+                    <td><#=user.SessionStarted#></td>
+                    <td><span id="size<#=user.SessionId#>">?</span></td>
+                </tr>
+<#}#>
+            </tbody>
+        </table>
+    </div>
+     <div id="results" class="container"></div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+</body>
+</html>
+
+<#+
+public dynamic Model {get;set;}
+#>

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.props" Condition="Exists('..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,10 +8,13 @@
     <ProjectGuid>{3F5FC7A7-D247-4402-9D30-C58E481C39DC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OnlineUserModule</RootNamespace>
+    <RootNamespace>Server</RootNamespace>
     <AssemblyName>OnlineUserModule</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,36 +35,128 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClosedXML, Version=0.87.0.0, Culture=neutral, PublicKeyToken=fd1eb21b62ae805b, processorArchitecture=MSIL">
+      <HintPath>..\SKS\outdirWebMap\MigratedSolution\packages\ClosedXML.0.87.1\lib\net40\ClosedXML.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\SKS\outdirWebMap\MigratedSolution\packages\DocumentFormat.OpenXml.2.5\lib\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MSBuild.AutoILMerge.Task, Version=1.0.0.0, Culture=en-US, processorArchitecture=MSIL">
+      <HintPath>..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\lib\net40\MSBuild.AutoILMerge.Task.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HexDump.cs" />
     <Compile Include="Module.cs" />
     <Compile Include="OnlineUserInfo.cs" />
-    <Compile Include="OnlineUsersHandler.cs" />
+    <Compile Include="RequestProcessors\CommandDumpBinItem.cs" />
+    <Compile Include="RequestProcessors\CommandDumpByPattern.cs" />
+    <Compile Include="RequestProcessors\CommandDumpItem.cs" />
+    <Compile Include="RequestProcessors\CommandDumpSession.cs" />
+    <Compile Include="SessionsInfoHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IRequestProcessor.cs" />
+    <Compile Include="RequestProcessors\Console.cs" />
+    <Compile Include="RequestProcessors\ConsoleRequest.cs" />
+    <Compile Include="RequestProcessors\Details.cs" />
+    <Compile Include="RequestProcessors\Sessions.cs" />
+    <Compile Include="RequestProcessors\Size.cs" />
     <Compile Include="SessionUtilities.cs" />
+    <Compile Include="Templates\console.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>console.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\details.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>details.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\dumpbypattern.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>dumpbypattern.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\sessions.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>sessions.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ILMerge.props" />
     <None Include="notes.md" />
-    <None Include="OnlineUserModule.nuspec">
+    <Content Include="OnlineUserModule.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <None Include="packages.config" />
     <None Include="README.md" />
-    <None Include="web.config.transform">
+    <Content Include="SesssionTerminal.PNG" />
+    <Content Include="web.config.transform">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\SKS\outdirWebMap\MigratedSolution\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\SKS\outdirWebMap\MigratedSolution\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="content\ILMergeOrder.txt" />
+    <Content Include="ILMergeInternalizeExcludeList.txt" />
+    <Content Include="ILMergeOrder.txt" />
+    <Content Include="SessionsScreen.PNG" />
+    <Content Include="Templates\console.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>console.cs</LastGenOutput>
+    </Content>
+    <Content Include="Templates\details.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>details.cs</LastGenOutput>
+    </Content>
+    <Content Include="Templates\dumpbypattern.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>dumpbypattern.cs</LastGenOutput>
+    </Content>
+    <Content Include="Templates\sessions.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>sessions.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.props')" Text="$([System.String]::Format('$(ErrorText)', '..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.props'))" />
+    <Error Condition="!Exists('..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.targets'))" />
+  </Target>
+  <Import Project="..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.targets" Condition="Exists('..\SKS\outdirWebMap\MigratedSolution\packages\MSBuild.AutoILMerge.Task.1.1.1\build\MSBuild.AutoILMerge.Task.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>cd $(TargetDir)
+$(SolutionDir)packages\NuGet.CommandLine.4.1.0\tools\nuget.exe pack
+</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
