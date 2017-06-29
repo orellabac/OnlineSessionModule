@@ -27,7 +27,7 @@ But what does this nuget do?
 ---------------------------
 
 Well it add an easy way to see the current list of sessions. 
-So for example if you  application is running at `http:\\localhost:54485' then
+So for example if you  application is running at `http:\\localhost:54485` then
 just navigate to `http://localhost:54485/sessioninfo.axd/sessions` it would show a list like:
 
 ![SessionsScreen](SessionsScreen.PNG)
