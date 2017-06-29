@@ -7,3 +7,5 @@
 *.nupkg
 /bin
 /obj
+/packages
+/OnlineUserModule.csproj.user
