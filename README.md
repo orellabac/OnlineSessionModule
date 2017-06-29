@@ -41,7 +41,7 @@ What is the session terminal?
 Well in this version I added a session console. I just wanted to create a terminal-like interface
 and terminal interfaces are cool.
 
-![Sessions Terminal](SessionTerminal.PNG)
+![Sessions Terminal](SesssionTerminal.PNG)
 
 This terminal only implements some simple commands:
 
