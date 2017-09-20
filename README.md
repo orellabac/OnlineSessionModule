@@ -71,3 +71,11 @@ This command shows the contents of all elements that match the given regular exp
 
 Shows a hex dump of the item with a particular id in the session
 
+Installation Issues
+-------------------
+
+Some uses have had some issues when installing the Nuget. 
+It might report an error with Newtonsoft.json I really do not know why because there are no direct dependencies but
+anyway if you see something like that change setting as in the picture below:
+
+![NugetIssues](SessionsScreen.PNG)
